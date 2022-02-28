@@ -17,7 +17,7 @@ function LiveClock() {
         // style={{ fontSize: "1.5em" }}
         format={"HH:mm:ss"}
         ticking={true}
-        timezone={"US/Asia"}
+        timezone={"Asia/Colombo"}
       />
       <Typography variant="p"> Local </Typography>
     </div>
