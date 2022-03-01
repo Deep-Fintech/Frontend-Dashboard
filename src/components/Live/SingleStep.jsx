@@ -186,7 +186,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions);
+          // console.log("Predictions : ", this.state.predictions);
           this.setState(
             (prevState) => {
               return {
@@ -197,7 +197,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
         }
       );
@@ -218,7 +218,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b1);
+          // console.log("Predictions : ", this.state.predictions_b1);
           this.setState(
             (prevState) => {
               return {
@@ -229,7 +229,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
           );
         }
       );
@@ -250,7 +250,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b2);
+          // console.log("Predictions : ", this.state.predictions_b2);
           this.setState(
             (prevState) => {
               return {
@@ -261,7 +261,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
           );
         }
       );
@@ -282,7 +282,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b3);
+          // console.log("Predictions : ", this.state.predictions_b3);
           this.setState(
             (prevState) => {
               return {
@@ -293,7 +293,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
           );
         }
       );
@@ -369,6 +369,20 @@ export class SingleStep extends Component {
         />
         {/* <Button variant="contained">Click</Button> */}
         <LiveClock />
+      <h2>Prediction values: </h2>
+      {this.state.predictions.length != 0 && <span>our model: {this.state.predictions[0]["value"]}</span>}<br/>
+      {this.state.predictions_b1.length != 0 && <span>Benchmark 1: {this.state.predictions_b1[0]["value"]}</span>}<br/>
+      {this.state.predictions_b2.length != 0 && <span>Benchmark 2: {this.state.predictions_b2[0]["value"]}</span>}<br/>
+      {this.state.predictions_b3.length != 0 && <span>Benchmark 3: {this.state.predictions_b3[0]["value"]}</span>}
+      <h2>Prediction Directions: </h2>
+      {this.state.prevPredictions.length != 0 && this.state.predictions[0]["value"]>=this.state.prevPredictions[0]["value"] && <span>our model: Up</span>}<br/>
+      {this.state.prevPredictions.length != 0 && this.state.predictions[0]["value"]<this.state.prevPredictions[0]["value"] && <span>our model: Down</span>}<br/>
+      {this.state.prevPredictions_b1.length != 0 && this.state.predictions_b1[0]["value"]>=this.state.prevPredictions_b1[0]["value"] && <span>Benchmark 1: Up</span>}<br/>
+      {this.state.prevPredictions_b1.length != 0 && this.state.predictions_b1[0]["value"]<this.state.prevPredictions_b1[0]["value"] && <span>Benchmark 1: Down</span>}<br/>
+      {this.state.prevPredictions_b2.length != 0 && this.state.predictions_b2[0]["value"]>=this.state.prevPredictions_b2[0]["value"] && <span>Benchmark 2: Up</span>}<br/>
+      {this.state.prevPredictions_b2.length != 0 && this.state.predictions_b2[0]["value"]<this.state.prevPredictions_b2[0]["value"] && <span>Benchmark 2: Down</span>}<br/>
+      {this.state.prevPredictions_b3.length != 0 && this.state.predictions_b3[0]["value"]>=this.state.prevPredictions_b3[0]["value"] && <span>Benchmark 3: Up</span>}<br/>
+      {this.state.prevPredictions_b3.length != 0 && this.state.predictions_b3[0]["value"]<this.state.prevPredictions_b3[0]["value"] && <span>Benchmark 3: Down</span>}<br/>
       </React.Fragment>
     );
   }
