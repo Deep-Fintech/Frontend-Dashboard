@@ -196,7 +196,7 @@ export class Live extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions);
+          // console.log("Predictions : ", this.state.predictions);
           this.setState(
             (prevState) => {
               return {
@@ -207,7 +207,7 @@ export class Live extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
         }
       );
