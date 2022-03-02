@@ -1,25 +1,26 @@
 import Clock from "react-live-clock";
 import React from "react";
 import "moment-timezone";
-import { Typography } from "@mui/material";
 
 function LiveClock() {
   return (
     <div>
-      <Clock
-        // style={{ fontSize: "1.5em" }}
-        format={"HH:mm:ss"}
-        ticking={true}
-        timezone={"UTC"}
-      />
-      <Typography variant="p"> UTC </Typography> <br />
-      <Clock
-        // style={{ fontSize: "1.5em" }}
-        format={"HH:mm:ss"}
-        ticking={true}
-        timezone={"Asia/Colombo"}
-      />
-      <Typography variant="p"> Local </Typography>
+      <h5>
+        UTC: 
+        <Clock
+          format={"HH:mm:ss"}
+          ticking={true}
+          timezone={"UTC"}
+        />
+      </h5>
+
+      <h5>Colombo: 
+        <Clock
+          format={"HH:mm:ss"}
+          ticking={true}
+          timezone={"Asia/Colombo"}
+        />
+      </h5>
     </div>
   );
 }

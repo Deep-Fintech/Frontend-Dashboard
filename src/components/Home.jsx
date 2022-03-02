@@ -1,17 +1,16 @@
 import React from "react";
-import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { Grid, Tooltip, Typography, Zoom } from "@mui/material";
 import { useHistory } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion/dist/framer-motion";
+import { motion } from "framer-motion/dist/framer-motion";
 
-const typoStyles = {
-  padding: 20,
-};
+// const typoStyles = {
+//   padding: 20,
+// };
 
-const paperStyles = {
-  cursor: "pointer",
-};
+// const paperStyles = {
+//   cursor: "pointer",
+// };
 
 function Home() {
   let history = useHistory();
