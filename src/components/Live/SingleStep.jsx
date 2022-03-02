@@ -3,18 +3,15 @@ import Chart from "kaktana-react-lightweight-charts";
 import axios from "axios";
 import { io } from "socket.io-client";
 import { BACKEND_URL } from "../../constants/Constants";
-import { Button } from "@mui/material";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import LiveClock from "../clock/LiveClock";
+import Grid from '@mui/material/Grid';
+import CircularProgress from '@mui/material/CircularProgress';
+import { ImArrowUp, ImArrowDown } from 'react-icons/im';
+
 
 const socket = io(BACKEND_URL);
-// client-side
-// socket.on("connect", () => {
-//   console.log(socket.id); // x8WIv7-mJelg7on_ALbx
-// });
-
-const MINUTE_MS = 60000;
 
 export class SingleStep extends Component {
   constructor(props) {
@@ -186,7 +183,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions);
+          // console.log("Predictions : ", this.state.predictions);
           this.setState(
             (prevState) => {
               return {
@@ -197,7 +194,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
         }
       );
@@ -218,7 +215,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b1);
+          // console.log("Predictions : ", this.state.predictions_b1);
           this.setState(
             (prevState) => {
               return {
@@ -229,7 +226,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
           );
         }
       );
@@ -250,7 +247,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b2);
+          // console.log("Predictions : ", this.state.predictions_b2);
           this.setState(
             (prevState) => {
               return {
@@ -261,7 +258,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
           );
         }
       );
@@ -282,7 +279,7 @@ export class SingleStep extends Component {
           ],
         },
         () => {
-          console.log("Predictions : ", this.state.predictions_b3);
+          // console.log("Predictions : ", this.state.predictions_b3);
           this.setState(
             (prevState) => {
               return {
@@ -293,7 +290,7 @@ export class SingleStep extends Component {
                 ],
               };
             },
-            () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
+            // () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
           );
         }
       );
@@ -367,8 +364,160 @@ export class SingleStep extends Component {
           socket={socket}
           legend="BTC/USDT"
         />
-        {/* <Button variant="contained">Click</Button> */}
-        <LiveClock />
+        
+        <Box ml={3} mr={3}>
+          <center>
+          <Grid container spacing={3}>
+            <Grid item xs={4}>
+              <Paper>
+                <LiveClock />
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Current Value:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.closeData.length !== 0 ? this.state.closeData[this.state.closeData.length-1]["value"] : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Current Directions:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.closeData.length !== 0 ? this.state.closeData[this.state.closeData.length-1]["value"] >= this.state.closeData[this.state.closeData.length-2]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Paper>
+                <center>
+                  <h3>Our Model</h3>
+                </center> 
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Predicted value:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.predictions.length !== 0 ? this.state.predictions[0]["value"] : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Prediction Directions:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.prevPredictions.length !== 0 ? this.state.predictions[0]["value"] >= this.state.prevPredictions[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Paper>
+                <center>
+                  <h3>Benchmark 1</h3>
+                </center>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Predicted value:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.predictions_b1.length !== 0 ? this.state.predictions_b1[0]["value"] : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Prediction Directions:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.prevPredictions_b1.length !== 0 ? this.state.predictions_b1[0]["value"] >= this.state.prevPredictions_b1[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Paper>
+                <center>
+                  <h3>Benchmark 2</h3>
+                </center> 
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Predicted value:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.predictions_b2.length !== 0 ? this.state.predictions_b2[0]["value"] : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Prediction Directions:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.prevPredictions_b2.length !== 0 ? this.state.predictions_b2[0]["value"] >= this.state.prevPredictions_b2[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={2}>
+              <Paper>
+                <center>
+                  <h3>Benchmark 3</h3>
+                </center>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Predicted value:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.predictions_b3.length !== 0 ? this.state.predictions_b3[0]["value"] : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+
+                <h5>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      Prediction Directions:
+                    </Grid>
+                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                      <span>{this.state.prevPredictions_b3.length !== 0 ? this.state.predictions_b3[0]["value"] >= this.state.prevPredictions_b3[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
+                    </Grid>
+                  </Grid>
+                </h5>
+              </Paper>
+            </Grid>
+          </Grid>
+          </center>
+        </Box>
       </React.Fragment>
     );
   }
