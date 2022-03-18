@@ -6,10 +6,11 @@ import { BACKEND_URL } from "../../constants/Constants";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import LiveClock from "../clock/LiveClock";
-import Grid from '@mui/material/Grid';
-import CircularProgress from '@mui/material/CircularProgress';
-import { ImArrowUp, ImArrowDown } from 'react-icons/im';
-
+import Grid from "@mui/material/Grid";
+import CircularProgress from "@mui/material/CircularProgress";
+import { ImArrowUp, ImArrowDown } from "react-icons/im";
+import Comparision from "./Comparision";
+import { removeDuplicatesFromArray } from "../../functions/SIngleStepFunctions";
 
 const socket = io(BACKEND_URL);
 
@@ -61,7 +62,7 @@ export class SingleStep extends Component {
 
   componentDidMount() {
     this.invokeLiveKLINESocket();
-    this.getKlineData();
+    // this.getKlineData();
     this.getCloseData();
     this.getPrediction();
     this.getPredictionByBenchmarkOne();
@@ -70,7 +71,11 @@ export class SingleStep extends Component {
   }
 
   invokeLiveKLINESocket = () => {
-    axios.get(BACKEND_URL).then((res) => console.log(res.data));
+    axios
+      .get(BACKEND_URL, {
+        headers: { "Access-Control-Allow-Origin": "*" },
+      })
+      .then((res) => console.log(res.data));
   };
 
   getKlineData = () => {
@@ -104,7 +109,7 @@ export class SingleStep extends Component {
   getCloseData = () => {
     axios
       .get(
-        "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=1000"
+        "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=100"
       )
       .then((res) => {
         const cdata = res.data.map((d) => {
@@ -172,7 +177,7 @@ export class SingleStep extends Component {
   // Prediction from our model
   getPrediction = async () => {
     socket.on("PREDICTION", (pl) => {
-      console.log(pl);
+      // console.log(pl);
       this.setState(
         {
           predictions: [
@@ -188,12 +193,12 @@ export class SingleStep extends Component {
             (prevState) => {
               return {
                 ...prevState,
-                prevPredictions: [
+                prevPredictions: removeDuplicatesFromArray([
                   ...prevState.prevPredictions,
                   ...this.state.predictions,
-                ],
+                ]),
               };
-            },
+            }
             // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
         }
@@ -204,7 +209,7 @@ export class SingleStep extends Component {
   // Prediction from Benchmark One
   getPredictionByBenchmarkOne = async () => {
     socket.on("PREDICTION_B1", (pl) => {
-      console.log(pl);
+      // console.log(pl);
       this.setState(
         {
           predictions_b1: [
@@ -220,12 +225,12 @@ export class SingleStep extends Component {
             (prevState) => {
               return {
                 ...prevState,
-                prevPredictions_b1: [
+                prevPredictions_b1: removeDuplicatesFromArray([
                   ...prevState.prevPredictions_b1,
                   ...this.state.predictions_b1,
-                ],
+                ]),
               };
-            },
+            }
             // () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
           );
         }
@@ -236,7 +241,7 @@ export class SingleStep extends Component {
   // Prediction from Benchmark Two
   getPredictionByBenchmarkTwo = async () => {
     socket.on("PREDICTION_B2", (pl) => {
-      console.log(pl);
+      // console.log(pl);
       this.setState(
         {
           predictions_b2: [
@@ -252,12 +257,12 @@ export class SingleStep extends Component {
             (prevState) => {
               return {
                 ...prevState,
-                prevPredictions_b2: [
+                prevPredictions_b2: removeDuplicatesFromArray([
                   ...prevState.prevPredictions_b2,
                   ...this.state.predictions_b2,
-                ],
+                ]),
               };
-            },
+            }
             // () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
           );
         }
@@ -268,7 +273,7 @@ export class SingleStep extends Component {
   // Prediction from Benchmark Three
   getPredictionByBenchmarkThree = async () => {
     socket.on("PREDICTION_B3", (pl) => {
-      console.log(pl);
+      // console.log(pl);
       this.setState(
         {
           predictions_b3: [
@@ -284,12 +289,12 @@ export class SingleStep extends Component {
             (prevState) => {
               return {
                 ...prevState,
-                prevPredictions_b3: [
+                prevPredictions_b3: removeDuplicatesFromArray([
                   ...prevState.prevPredictions_b3,
                   ...this.state.predictions_b3,
-                ],
+                ]),
               };
-            },
+            }
             // () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
           );
         }
@@ -345,6 +350,7 @@ export class SingleStep extends Component {
   render() {
     return (
       <React.Fragment>
+        {/* Realtime Chartv  */}
         <Chart
           options={this.state.options}
           // candlestickSeries={this.state.candlestickSeries}
@@ -364,160 +370,19 @@ export class SingleStep extends Component {
           socket={socket}
           legend="BTC/USDT"
         />
-        
-        <Box ml={3} mr={3}>
-          <center>
-          <Grid container spacing={3}>
-            <Grid item xs={4}>
-              <Paper>
-                <LiveClock />
 
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Current Value:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.closeData.length !== 0 ? this.state.closeData[this.state.closeData.length-1]["value"] : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Current Directions:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.closeData.length !== 0 ? this.state.closeData[this.state.closeData.length-1]["value"] >= this.state.closeData[this.state.closeData.length-2]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={2}>
-              <Paper>
-                <center>
-                  <h3>Our Model</h3>
-                </center> 
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Predicted value:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.predictions.length !== 0 ? this.state.predictions[0]["value"] : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Prediction Directions:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.prevPredictions.length !== 0 ? this.state.predictions[0]["value"] >= this.state.prevPredictions[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={2}>
-              <Paper>
-                <center>
-                  <h3>Benchmark 1</h3>
-                </center>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Predicted value:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.predictions_b1.length !== 0 ? this.state.predictions_b1[0]["value"] : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Prediction Directions:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.prevPredictions_b1.length !== 0 ? this.state.predictions_b1[0]["value"] >= this.state.prevPredictions_b1[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={2}>
-              <Paper>
-                <center>
-                  <h3>Benchmark 2</h3>
-                </center> 
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Predicted value:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.predictions_b2.length !== 0 ? this.state.predictions_b2[0]["value"] : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Prediction Directions:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.prevPredictions_b2.length !== 0 ? this.state.predictions_b2[0]["value"] >= this.state.prevPredictions_b2[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-              </Paper>
-            </Grid>
-
-            <Grid item xs={2}>
-              <Paper>
-                <center>
-                  <h3>Benchmark 3</h3>
-                </center>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Predicted value:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.predictions_b3.length !== 0 ? this.state.predictions_b3[0]["value"] : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-
-                <h5>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      Prediction Directions:
-                    </Grid>
-                    <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                      <span>{this.state.prevPredictions_b3.length !== 0 ? this.state.predictions_b3[0]["value"] >= this.state.prevPredictions_b3[0]["value"] ? <ImArrowUp color='green' size='3em'/> : <ImArrowDown color='red' size='3em'/> : <CircularProgress />}</span>
-                    </Grid>
-                  </Grid>
-                </h5>
-              </Paper>
-            </Grid>
-          </Grid>
-          </center>
-        </Box>
+        {/* Comparision with benchmarks  */}
+        <Comparision
+          closeData={this.state.closeData}
+          predictions={this.state.predictions}
+          predictions_b1={this.state.predictions_b1}
+          predictions_b2={this.state.predictions_b2}
+          predictions_b3={this.state.predictions_b3}
+          prevPredictions={this.state.prevPredictions}
+          prevPredictions_b1={this.state.prevPredictions_b1}
+          prevPredictions_b2={this.state.prevPredictions_b2}
+          prevPredictions_b3={this.state.prevPredictions_b3}
+        />
       </React.Fragment>
     );
   }
