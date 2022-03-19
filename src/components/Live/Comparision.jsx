@@ -9,6 +9,7 @@ import LiveClock from "../clock/LiveClock";
 import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ImArrowUp, ImArrowDown } from "react-icons/im";
+import { calcProfit } from "../../functions/SIngleStepFunctions";
 
 function Comparision({
   closeData,
@@ -20,6 +21,10 @@ function Comparision({
   prevPredictions_b1,
   prevPredictions_b2,
   prevPredictions_b3,
+  profitOurModel,
+  profitB1,
+  profitB2,
+  profitB3,
 }) {
   return (
     <div>
@@ -76,7 +81,7 @@ function Comparision({
                 <center>
                   <h3>Our Model</h3>
                 </center>
-
+                <h3>Profit : {profitOurModel} </h3>
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -93,7 +98,6 @@ function Comparision({
                     </Grid>
                   </Grid>
                 </h5>
-
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -127,7 +131,7 @@ function Comparision({
                 <center>
                   <h3>Benchmark 1</h3>
                 </center>
-
+                <h3>Profit : {profitB1} </h3>
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -178,6 +182,7 @@ function Comparision({
                 <center>
                   <h3>Benchmark 2</h3>
                 </center>
+                <h3>Profit : {profitB2} </h3>
 
                 <h5>
                   <Grid container spacing={2}>
@@ -229,7 +234,7 @@ function Comparision({
                 <center>
                   <h3>Benchmark 3</h3>
                 </center>
-
+                <h3>Profit : {profitB3} </h3>
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -254,7 +259,7 @@ function Comparision({
                     </Grid>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
                       <span>
-                        {prevPredictions_b3.length > 1? (
+                        {prevPredictions_b3.length > 1 ? (
                           prevPredictions_b3[prevPredictions_b3.length - 1][
                             "value"
                           ] >=

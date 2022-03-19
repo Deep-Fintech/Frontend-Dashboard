@@ -10,7 +10,10 @@ import Grid from "@mui/material/Grid";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ImArrowUp, ImArrowDown } from "react-icons/im";
 import Comparision from "./Comparision";
-import { removeDuplicatesFromArray } from "../../functions/SIngleStepFunctions";
+import {
+  calcProfit,
+  removeDuplicatesFromArray,
+} from "../../functions/SIngleStepFunctions";
 
 const socket = io(BACKEND_URL);
 
@@ -57,6 +60,10 @@ export class SingleStep extends Component {
       // B3 Predictions
       predictions_b3: [],
       prevPredictions_b3: [],
+      profitOurModel: 0,
+      profitB1: 0,
+      profitB2: 0,
+      profitB3: 0,
     };
   }
 
@@ -165,10 +172,10 @@ export class SingleStep extends Component {
         },
         () =>
           this.setState({
-            closeData: [
+            closeData: removeDuplicatesFromArray([
               ...this.state.historicalCloseData,
               ...this.state.myCloseData,
-            ],
+            ]),
           })
       );
     });
@@ -198,6 +205,9 @@ export class SingleStep extends Component {
                   ...this.state.predictions,
                 ]),
               };
+            },
+            () => {
+              this.calcProfitOurModel();
             }
             // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
@@ -230,8 +240,10 @@ export class SingleStep extends Component {
                   ...this.state.predictions_b1,
                 ]),
               };
+            },
+            () => {
+              this.calcProfitB1();
             }
-            // () => console.log("Prev Pred : ", this.state.prevPredictions_b1)
           );
         }
       );
@@ -262,8 +274,10 @@ export class SingleStep extends Component {
                   ...this.state.predictions_b2,
                 ]),
               };
+            },
+            () => {
+              this.calcProfitB2();
             }
-            // () => console.log("Prev Pred : ", this.state.prevPredictions_b2)
           );
         }
       );
@@ -294,8 +308,10 @@ export class SingleStep extends Component {
                   ...this.state.predictions_b3,
                 ]),
               };
+            },
+            () => {
+              this.calcProfitB3();
             }
-            // () => console.log("Prev Pred : ", this.state.prevPredictions_b3)
           );
         }
       );
@@ -347,6 +363,120 @@ export class SingleStep extends Component {
     };
   };
 
+  // Calculate Profit using models
+  calcProfitOurModel = async () => {
+    if (this.state.prevPredictions.length > 2) {
+      var profit = await calcProfit(
+        parseFloat(this.state.profitOurModel),
+        parseFloat(
+          this.state.prevPredictions[this.state.prevPredictions.length - 3][
+            "value"
+          ]
+        ),
+        parseFloat(
+          this.state.prevPredictions[this.state.prevPredictions.length - 2][
+            "value"
+          ]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 3]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 2]["value"]
+        )
+      );
+
+      console.log("profit fn : ", profit);
+      this.setState({
+        profitOurModel: profit,
+      });
+    }
+  };
+
+  calcProfitB1 = async () => {
+    if (this.state.prevPredictions_b1.length > 2) {
+      var profit = await calcProfit(
+        parseFloat(this.state.profitB1),
+        parseFloat(
+          this.state.prevPredictions_b1[
+            this.state.prevPredictions_b1.length - 2
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b1[
+            this.state.prevPredictions_b1.length - 1
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 3]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 2]["value"]
+        )
+      );
+
+      this.setState({
+        profitB1: profit,
+      });
+    }
+  };
+
+  calcProfitB2 = async () => {
+    if (this.state.prevPredictions_b2.length > 2) {
+      var profit = await calcProfit(
+        parseFloat(this.state.profitB2),
+        parseFloat(
+          this.state.prevPredictions_b2[
+            this.state.prevPredictions_b2.length - 2
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b2[
+            this.state.prevPredictions_b2.length - 1
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 3]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 2]["value"]
+        )
+      );
+
+      this.setState({
+        profitB2: profit,
+      });
+    }
+  };
+
+  calcProfitB3 = async () => {
+    if (this.state.prevPredictions_b3.length > 2) {
+      var profit = await calcProfit(
+        parseFloat(this.state.profitB3),
+        parseFloat(
+          this.state.prevPredictions_b3[
+            this.state.prevPredictions_b3.length - 2
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b3[
+            this.state.prevPredictions_b3.length - 1
+          ]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 3]["value"]
+        ),
+        parseFloat(
+          this.state.closeData[this.state.closeData.length - 2]["value"]
+        )
+      );
+
+      this.setState({
+        profitB3: profit,
+      });
+    }
+  };
+
   render() {
     return (
       <React.Fragment>
@@ -382,6 +512,10 @@ export class SingleStep extends Component {
           prevPredictions_b1={this.state.prevPredictions_b1}
           prevPredictions_b2={this.state.prevPredictions_b2}
           prevPredictions_b3={this.state.prevPredictions_b3}
+          profitOurModel={this.state.profitOurModel}
+          profitB1={this.state.profitB1}
+          profitB2={this.state.profitB2}
+          profitB3={this.state.profitB3}
         />
       </React.Fragment>
     );
