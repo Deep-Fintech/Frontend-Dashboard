@@ -60,10 +60,11 @@ export class SingleStep extends Component {
       // B3 Predictions
       predictions_b3: [],
       prevPredictions_b3: [],
-      profitOurModel: 0,
-      profitB1: 0,
-      profitB2: 0,
-      profitB3: 0,
+      profitOurModel: [{ time: 0, value: 0 }],
+      profitB1: [{ time: 0, value: 0 }],
+      profitB2: [{ time: 0, value: 0 }],
+      profitB3: [{ time: 0, value: 0 }],
+      endCloseData: [],
     };
   }
 
@@ -75,6 +76,7 @@ export class SingleStep extends Component {
     this.getPredictionByBenchmarkOne();
     this.getPredictionByBenchmarkTwo();
     this.getPredictionByBenchmarkThree();
+    this.getSocketEndCLOSE();
   }
 
   invokeLiveKLINESocket = () => {
@@ -113,6 +115,7 @@ export class SingleStep extends Component {
       });
   };
 
+  // Get close data from binance API (Historical)
   getCloseData = () => {
     axios
       .get(
@@ -157,6 +160,24 @@ export class SingleStep extends Component {
     });
   };
 
+  getSocketEndCLOSE = () => {
+    socket.on("CLOSE", (pl) => {
+      this.setState(
+        {
+          endCloseData: removeDuplicatesFromArray([
+            ...this.state.endCloseData,
+            {
+              time: pl["time"],
+              value: pl["close"],
+            },
+          ]),
+        }
+        // () =>
+        //   console.log("DEBUG => : SOCKET CLOSE END", this.state.endCloseData)
+      );
+    });
+  };
+
   getSocketCloseData = () => {
     socket.on("KLINE", (pl) => {
       // console.log(pl);
@@ -169,14 +190,14 @@ export class SingleStep extends Component {
               value: pl["close"],
             },
           ],
-        },
-        () =>
-          this.setState({
-            closeData: removeDuplicatesFromArray([
-              ...this.state.historicalCloseData,
-              ...this.state.myCloseData,
-            ]),
-          })
+        }
+        // () =>
+        //   this.setState({
+        //     closeData: removeDuplicatesFromArray([
+        //       ...this.state.historicalCloseData,
+        //       ...this.state.myCloseData,
+        //     ]),
+        //   })
       );
     });
   };
@@ -207,9 +228,9 @@ export class SingleStep extends Component {
               };
             },
             () => {
-              this.calcProfitOurModel();
+              this.calcProfitOurModel(pl.times.t1);
+              // console.log("Prev Pred : ", this.state.prevPredictions);
             }
-            // () => console.log("Prev Pred : ", this.state.prevPredictions)
           );
         }
       );
@@ -242,7 +263,7 @@ export class SingleStep extends Component {
               };
             },
             () => {
-              this.calcProfitB1();
+              this.calcProfitB1(pl.times.t1);
             }
           );
         }
@@ -276,7 +297,7 @@ export class SingleStep extends Component {
               };
             },
             () => {
-              this.calcProfitB2();
+              this.calcProfitB2(pl.times.t1);
             }
           );
         }
@@ -310,7 +331,7 @@ export class SingleStep extends Component {
               };
             },
             () => {
-              this.calcProfitB3();
+              this.calcProfitB3(pl.times.t1);
             }
           );
         }
@@ -318,6 +339,7 @@ export class SingleStep extends Component {
     });
   };
 
+  // Get charts with data, options for data arrays to display in dashboard
   chartLineSeriesData = (data, title) => {
     return {
       data,
@@ -329,6 +351,7 @@ export class SingleStep extends Component {
     };
   };
 
+  // Get titiles to display with each chart
   getChartData = (data) => {
     const title_list = [
       "Realtime Close ",
@@ -363,11 +386,15 @@ export class SingleStep extends Component {
     };
   };
 
-  // Calculate Profit using models
-  calcProfitOurModel = async () => {
+  // Calculate Profit using our model
+  calcProfitOurModel = async (time) => {
     if (this.state.prevPredictions.length > 2) {
       var profit = await calcProfit(
-        parseFloat(this.state.profitOurModel),
+        parseFloat(
+          this.state.profitOurModel[this.state.profitOurModel.length - 1][
+            "value"
+          ]
+        ),
         parseFloat(
           this.state.prevPredictions[this.state.prevPredictions.length - 3][
             "value"
@@ -379,24 +406,35 @@ export class SingleStep extends Component {
           ]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 3]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 2]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
         )
       );
 
-      console.log("profit fn : ", profit);
-      this.setState({
-        profitOurModel: profit,
-      });
+      this.setState(
+        {
+          profitOurModel: await removeDuplicatesFromArray([
+            ...this.state.profitOurModel,
+            {
+              time: time,
+              value: profit,
+            },
+          ]),
+        },
+        () => console.log("PROFIT OUR : ", this.state.profitOurModel)
+      );
     }
   };
 
-  calcProfitB1 = async () => {
+  // Calculate Profit using Benchmark 1
+  calcProfitB1 = async (time) => {
     if (this.state.prevPredictions_b1.length > 2) {
       var profit = await calcProfit(
-        parseFloat(this.state.profitB1),
+        parseFloat(
+          this.state.profitB1[this.state.profitB1.length - 1]["value"]
+        ),
         parseFloat(
           this.state.prevPredictions_b1[
             this.state.prevPredictions_b1.length - 2
@@ -408,23 +446,35 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 3]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 2]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
         )
       );
 
-      this.setState({
-        profitB1: profit,
-      });
+      this.setState(
+        {
+          profitB1: await removeDuplicatesFromArray([
+            ...this.state.profitB1,
+            {
+              time: time,
+              value: profit,
+            },
+          ]),
+        },
+        () => console.log("PROFIT B1 : ", this.state.profitB1)
+      );
     }
   };
 
-  calcProfitB2 = async () => {
+  // Calculate Profit using Benchmark 2
+  calcProfitB2 = async (time) => {
     if (this.state.prevPredictions_b2.length > 2) {
       var profit = await calcProfit(
-        parseFloat(this.state.profitB2),
+        parseFloat(
+          this.state.profitB2[this.state.profitB2.length - 1]["value"]
+        ),
         parseFloat(
           this.state.prevPredictions_b2[
             this.state.prevPredictions_b2.length - 2
@@ -436,23 +486,35 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 3]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 2]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
         )
       );
 
-      this.setState({
-        profitB2: profit,
-      });
+      this.setState(
+        {
+          profitB2: await removeDuplicatesFromArray([
+            ...this.state.profitB2,
+            {
+              time: time,
+              value: profit,
+            },
+          ]),
+        },
+        () => console.log("PROFIT B2 : ", this.state.profitB2)
+      );
     }
   };
 
-  calcProfitB3 = async () => {
+  // Calculate Profit using Benchmark 3
+  calcProfitB3 = async (time) => {
     if (this.state.prevPredictions_b3.length > 2) {
       var profit = await calcProfit(
-        parseFloat(this.state.profitB3),
+        parseFloat(
+          this.state.profitB3[this.state.profitB3.length - 1]["value"]
+        ),
         parseFloat(
           this.state.prevPredictions_b3[
             this.state.prevPredictions_b3.length - 2
@@ -464,16 +526,25 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 3]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
-          this.state.closeData[this.state.closeData.length - 2]["value"]
+          this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
         )
       );
 
-      this.setState({
-        profitB3: profit,
-      });
+      this.setState(
+        {
+          profitB3: await removeDuplicatesFromArray([
+            ...this.state.profitB3,
+            {
+              time: time,
+              value: profit,
+            },
+          ]),
+        },
+        () => console.log("PROFIT B3 : ", this.state.profitB3)
+      );
     }
   };
 
@@ -486,7 +557,12 @@ export class SingleStep extends Component {
           // candlestickSeries={this.state.candlestickSeries}
           lineSeries={[
             ...this.getChartData([
-              this.state.closeData,
+              // this.state.closeData,
+              [
+                ...this.state.historicalCloseData,
+                ...this.state.endCloseData,
+                ...this.state.myCloseData,
+              ],
               this.state.prevPredictions,
               this.state.prevPredictions_b1,
               this.state.prevPredictions_b2,
