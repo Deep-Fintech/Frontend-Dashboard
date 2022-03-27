@@ -12,6 +12,7 @@ import { ImArrowUp, ImArrowDown } from "react-icons/im";
 import Comparision from "./Comparision";
 import {
   calcProfit,
+  keyExists,
   removeDuplicatesFromArray,
 } from "../../functions/SIngleStepFunctions";
 
@@ -61,9 +62,13 @@ export class SingleStep extends Component {
       predictions_b3: [],
       prevPredictions_b3: [],
       profitOurModel: [{ time: 0, value: 0 }],
+      tradeCountOurModel: 0,
       profitB1: [{ time: 0, value: 0 }],
+      tradeCountB1: 0,
       profitB2: [{ time: 0, value: 0 }],
+      tradeCountB2: 0,
       profitB3: [{ time: 0, value: 0 }],
+      tradeCountB3: 0,
       endCloseData: [],
     };
   }
@@ -171,9 +176,9 @@ export class SingleStep extends Component {
               value: pl["close"],
             },
           ]),
-        }
-        // () =>
-        //   console.log("DEBUG => : SOCKET CLOSE END", this.state.endCloseData)
+        },
+        () =>
+          console.log("DEBUG => : SOCKET CLOSE END", this.state.endCloseData)
       );
     });
   };
@@ -184,7 +189,7 @@ export class SingleStep extends Component {
       this.setState(
         {
           myCloseData: [
-            ...this.state.myCloseData,
+            // ...this.state.myCloseData,
             {
               time: pl["time"],
               value: pl["close"],
@@ -389,7 +394,7 @@ export class SingleStep extends Component {
   // Calculate Profit using our model
   calcProfitOurModel = async (time) => {
     if (this.state.prevPredictions.length > 2) {
-      var profit = await calcProfit(
+      var [profit, tradeCount] = await calcProfit(
         parseFloat(
           this.state.profitOurModel[this.state.profitOurModel.length - 1][
             "value"
@@ -410,30 +415,45 @@ export class SingleStep extends Component {
         ),
         parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
-        )
+        ),
+        this.state.tradeCountOurModel
       );
 
-      this.setState(
-        {
-          profitOurModel: await removeDuplicatesFromArray([
-            ...this.state.profitOurModel,
-            {
-              time: time,
-              value: profit,
-            },
-          ]),
-        },
-        () => console.log("PROFIT OUR : ", this.state.profitOurModel)
-      );
+      if (keyExists(this.state.profitOurModel, time) == 0) {
+        this.setState(
+          {
+            profitOurModel: [
+              ...this.state.profitOurModel,
+              {
+                time: time,
+                value: profit,
+              },
+            ],
+            tradeCountOurModel: tradeCount,
+          },
+          () =>
+            console.log(
+              "PROFIT OUR : ",
+              this.state.profitOurModel,
+              " TRADE COUNT : ",
+              this.state.tradeCountOurModel
+            )
+        );
+      }
     }
   };
 
   // Calculate Profit using Benchmark 1
   calcProfitB1 = async (time) => {
     if (this.state.prevPredictions_b1.length > 2) {
-      var profit = await calcProfit(
+      var [profit, tradeCount] = await calcProfit(
         parseFloat(
           this.state.profitB1[this.state.profitB1.length - 1]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b1[
+            this.state.prevPredictions_b1.length - 3
+          ]["value"]
         ),
         parseFloat(
           this.state.prevPredictions_b1[
@@ -441,39 +461,49 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.prevPredictions_b1[
-            this.state.prevPredictions_b1.length - 1
-          ]["value"]
-        ),
-        parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
-        )
+        ),
+        this.state.tradeCountB1
       );
 
-      this.setState(
-        {
-          profitB1: await removeDuplicatesFromArray([
-            ...this.state.profitB1,
-            {
-              time: time,
-              value: profit,
-            },
-          ]),
-        },
-        () => console.log("PROFIT B1 : ", this.state.profitB1)
-      );
+      if (keyExists(this.state.profitB1, time) == 0) {
+        this.setState(
+          {
+            profitB1: [
+              ...this.state.profitB1,
+              {
+                time: time,
+                value: profit,
+              },
+            ],
+            tradeCountB1: tradeCount,
+          },
+          () =>
+            console.log(
+              "PROFIT B1 : ",
+              this.state.profitB1,
+              " TRADE COUNT B2 : ",
+              this.state.tradeCountB1
+            )
+        );
+      }
     }
   };
 
   // Calculate Profit using Benchmark 2
   calcProfitB2 = async (time) => {
     if (this.state.prevPredictions_b2.length > 2) {
-      var profit = await calcProfit(
+      var [profit, tradeCount] = await calcProfit(
         parseFloat(
           this.state.profitB2[this.state.profitB2.length - 1]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b2[
+            this.state.prevPredictions_b2.length - 3
+          ]["value"]
         ),
         parseFloat(
           this.state.prevPredictions_b2[
@@ -481,39 +511,49 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.prevPredictions_b2[
-            this.state.prevPredictions_b2.length - 1
-          ]["value"]
-        ),
-        parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
-        )
+        ),
+        this.state.tradeCountB2
       );
 
-      this.setState(
-        {
-          profitB2: await removeDuplicatesFromArray([
-            ...this.state.profitB2,
-            {
-              time: time,
-              value: profit,
-            },
-          ]),
-        },
-        () => console.log("PROFIT B2 : ", this.state.profitB2)
-      );
+      if (keyExists(this.state.profitB2, time) == 0) {
+        this.setState(
+          {
+            profitB2: [
+              ...this.state.profitB2,
+              {
+                time: time,
+                value: profit,
+              },
+            ],
+            tradeCountB2: tradeCount,
+          },
+          () =>
+            console.log(
+              "PROFIT B2 : ",
+              this.state.profitB2,
+              " TRADE COUNT B2 : ",
+              this.state.tradeCountB2
+            )
+        );
+      }
     }
   };
 
   // Calculate Profit using Benchmark 3
   calcProfitB3 = async (time) => {
     if (this.state.prevPredictions_b3.length > 2) {
-      var profit = await calcProfit(
+      var [profit, tradeCount] = await calcProfit(
         parseFloat(
           this.state.profitB3[this.state.profitB3.length - 1]["value"]
+        ),
+        parseFloat(
+          this.state.prevPredictions_b3[
+            this.state.prevPredictions_b3.length - 3
+          ]["value"]
         ),
         parseFloat(
           this.state.prevPredictions_b3[
@@ -521,30 +561,35 @@ export class SingleStep extends Component {
           ]["value"]
         ),
         parseFloat(
-          this.state.prevPredictions_b3[
-            this.state.prevPredictions_b3.length - 1
-          ]["value"]
-        ),
-        parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 2]["value"]
         ),
         parseFloat(
           this.state.endCloseData[this.state.endCloseData.length - 1]["value"]
-        )
+        ),
+        this.state.tradeCountB3
       );
 
-      this.setState(
-        {
-          profitB3: await removeDuplicatesFromArray([
-            ...this.state.profitB3,
-            {
-              time: time,
-              value: profit,
-            },
-          ]),
-        },
-        () => console.log("PROFIT B3 : ", this.state.profitB3)
-      );
+      if (keyExists(this.state.profitB3, time) == 0) {
+        this.setState(
+          {
+            profitB3: [
+              ...this.state.profitB3,
+              {
+                time: time,
+                value: profit,
+              },
+            ],
+            tradeCountB3: tradeCount,
+          },
+          () =>
+            console.log(
+              "PROFIT B3 : ",
+              this.state.profitB3,
+              " TRADE COUNT B3 : ",
+              this.state.tradeCountB3
+            )
+        );
+      }
     }
   };
 
@@ -579,7 +624,8 @@ export class SingleStep extends Component {
 
         {/* Comparision with benchmarks  */}
         <Comparision
-          closeData={this.state.closeData}
+          closeData={this.state.myCloseData}
+          endCloseData={this.state.endCloseData}
           predictions={this.state.predictions}
           predictions_b1={this.state.predictions_b1}
           predictions_b2={this.state.predictions_b2}
@@ -592,6 +638,10 @@ export class SingleStep extends Component {
           profitB1={this.state.profitB1}
           profitB2={this.state.profitB2}
           profitB3={this.state.profitB3}
+          tradeCountOurModel={this.state.tradeCountOurModel}
+          tradeCountB1={this.state.tradeCountB1}
+          tradeCountB2={this.state.tradeCountB2}
+          tradeCountB3={this.state.tradeCountB3}
         />
       </React.Fragment>
     );

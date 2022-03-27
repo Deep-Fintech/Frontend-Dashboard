@@ -13,6 +13,7 @@ import { calcProfit } from "../../functions/SIngleStepFunctions";
 
 function Comparision({
   closeData,
+  endCloseData,
   predictions,
   predictions_b1,
   predictions_b2,
@@ -25,6 +26,10 @@ function Comparision({
   profitB1,
   profitB2,
   profitB3,
+  tradeCountOurModel,
+  tradeCountB1,
+  tradeCountB2,
+  tradeCountB3,
 }) {
   return (
     <div>
@@ -42,8 +47,8 @@ function Comparision({
                     </Grid>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
                       <span>
-                        {closeData.length !== 0 ? (
-                          closeData[closeData.length - 1]["value"]
+                        {closeData.length != 0 ? (
+                          closeData[0]["value"]
                         ) : (
                           <CircularProgress />
                         )}
@@ -59,9 +64,9 @@ function Comparision({
                     </Grid>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
                       <span>
-                        {closeData.length !== 0 ? (
-                          closeData[closeData.length - 1]["value"] >=
-                          closeData[closeData.length - 2]["value"] ? (
+                        {endCloseData.length > 0 ? (
+                          closeData[0]["value"] >=
+                          endCloseData[endCloseData.length - 1]["value"] ? (
                             <ImArrowUp color="green" size="3em" />
                           ) : (
                             <ImArrowDown color="red" size="3em" />
@@ -82,8 +87,9 @@ function Comparision({
                   <h3>Our Model</h3>
                 </center>
                 <h3>
-                  Profit :{profitOurModel[profitOurModel.length - 1]["value"]}
+                  Profit : ${profitOurModel[profitOurModel.length - 1]["value"]}
                 </h3>
+                <h5>Trade Count : {tradeCountOurModel}</h5>
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -133,7 +139,9 @@ function Comparision({
                 <center>
                   <h3>Benchmark 1</h3>
                 </center>
-                <h3>Profit :{profitB1[profitB1.length - 1]["value"]} </h3>
+                <h3>Profit : ${profitB1[profitB1.length - 1]["value"]} </h3>
+                <h5>Trade Count : {tradeCountB1}</h5>
+
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
@@ -184,7 +192,8 @@ function Comparision({
                 <center>
                   <h3>Benchmark 2</h3>
                 </center>
-                <h3>Profit : {profitB2[profitB2.length - 1]["value"]} </h3>
+                <h3>Profit : ${profitB2[profitB2.length - 1]["value"]} </h3>
+                <h5>Trade Count : {tradeCountB2}</h5>
 
                 <h5>
                   <Grid container spacing={2}>
@@ -236,7 +245,9 @@ function Comparision({
                 <center>
                   <h3>Benchmark 3</h3>
                 </center>
-                <h3>Profit : {profitB3[profitB3.length - 1]["value"]} </h3>
+                <h3>Profit : ${profitB3[profitB3.length - 1]["value"]} </h3>
+                <h5>Trade Count : {tradeCountB3}</h5>
+
                 <h5>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: "center" }}>
